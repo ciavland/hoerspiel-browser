@@ -29,6 +29,7 @@ export const searchAudioPlays = async (term: string, limit = 20) => {
                 offset: offset.toString()
             });
 
+            console.log(`Fetching ${term}: offset=${offset}, limit=${currentLimit}`);
             const response = await fetch(`https://itunes.apple.com/search?${params.toString()}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch from iTunes API');
@@ -40,7 +41,17 @@ export const searchAudioPlays = async (term: string, limit = 20) => {
                 break;
             }
 
-            allResults = [...allResults, ...results];
+            // Filter out existing IDs to prevent duplicates
+            const existingIds = new Set(allResults.map(r => r.collectionId));
+            const newResults = results.filter(r => !existingIds.has(r.collectionId));
+
+            if (newResults.length === 0 && results.length > 0) {
+                // We got results but they were all duplicates. Stop to prevent infinite loop.
+                console.log(`Stopped fetching ${term} at offset ${offset} due to duplicate results.`);
+                break;
+            }
+
+            allResults = [...allResults, ...newResults];
             offset += results.length;
 
             // Only break if we get 0 results. 
