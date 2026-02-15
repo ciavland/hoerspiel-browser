@@ -31,14 +31,28 @@ export default function TkkgPage() {
                 if (uniqueResults.length > 0) {
                     const sorted = uniqueResults.sort((a, b) => {
                         const getEpisodeNumber = (name: string) => {
-                            const match = name.match(/Folge\s+(\d+)/i);
-                            return match ? parseInt(match[1], 10) : 999999;
+                            // Try standard "Folge X" or "TKKG X"
+                            const matchStandard = name.match(/(?:Folge|TKKG)\s*(\d+)/i);
+                            if (matchStandard) return parseInt(matchStandard[1], 10);
+
+                            // Try "003/Title" format
+                            const matchSlash = name.match(/^(\d+)\//);
+                            if (matchSlash) return parseInt(matchSlash[1], 10);
+
+                            return 999999;
                         };
+
                         const numA = getEpisodeNumber(a.collectionName);
                         const numB = getEpisodeNumber(b.collectionName);
 
                         // If both have numbers, sort by number
                         if (numA !== 999999 && numB !== 999999) return numA - numB;
+
+                        // If one has number and other doesn't, prioritize number? 
+                        // Actually, unnumbered ones like "Das Geheimnis um TKKG" might be specials or Episode 0.
+                        // Let's keep numbered ones together.
+                        if (numA !== 999999) return -1;
+                        if (numB !== 999999) return 1;
 
                         // Fallback to release date if no number
                         return new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime();
