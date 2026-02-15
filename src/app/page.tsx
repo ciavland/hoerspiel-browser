@@ -16,13 +16,21 @@ export default function Home() {
     const fetchData = async () => {
       try {
         // Parallel fetching
-        const [tkkgData, benjaminData] = await Promise.all([
+        const [tkkgData, benjaminResults] = await Promise.all([
           searchArtist('TKKG'),
-          searchArtist('Benjamin Blümchen')
+          searchArtist('Benjamin Blümchen', 100) // Fetch more to find the newest
         ]);
 
         setTkkg(tkkgData || []);
-        setBenjamin(benjaminData || []);
+
+        if (benjaminResults) {
+          const sortedBenjamin = benjaminResults
+            .sort((a: any, b: any) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+            .slice(0, 20);
+          setBenjamin(sortedBenjamin);
+        } else {
+          setBenjamin([]);
+        }
       } catch (err: any) {
         console.error(err);
         setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
