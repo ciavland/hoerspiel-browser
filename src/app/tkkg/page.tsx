@@ -45,22 +45,18 @@ export default function TkkgPage() {
     }, []);
 
     useEffect(() => {
-        const isClassic = (name: string) => {
-            // Must contain "Folge X" 
-            const hasFolge = /Folge\s+(\d+)/.test(name);
-
-            // Exclude Specials: "Junior", "Adventskalender", "Kinofilm"
-            const isSpecial = /Junior|Adventskalender|Kinofilm|Box|Weihnacht/i.test(name);
-
-            return hasFolge && !isSpecial;
+        const isClassic = (item: ItunesCollection) => {
+            // Filter by Artist Name as requested
+            // Klassiker: "TKKG" or "TKKG Retro-Archiv"
+            return item.artistName === 'TKKG' || item.artistName === 'TKKG Retro-Archiv';
         };
 
         if (filterMode === 'all') {
             setFilteredEpisodes(episodes);
         } else if (filterMode === 'classic') {
-            setFilteredEpisodes(episodes.filter(ep => isClassic(ep.collectionName)));
+            setFilteredEpisodes(episodes.filter(ep => isClassic(ep)));
         } else if (filterMode === 'special') {
-            setFilteredEpisodes(episodes.filter(ep => !isClassic(ep.collectionName)));
+            setFilteredEpisodes(episodes.filter(ep => !isClassic(ep)));
         }
     }, [filterMode, episodes]);
 
