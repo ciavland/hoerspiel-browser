@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Section from '../components/Section';
 import AudioPlayCard from '../components/AudioPlayCard';
 import { searchArtist } from '../services/musickit';
+import Link from 'next/link';
 
 export default function Home() {
   const [tkkg, setTkkg] = useState<any[]>([]);
@@ -70,9 +71,9 @@ export default function Home() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-white">Benjamin Blümchen</h2>
-              <a href="/benjamin-bluemchen" className="text-sm font-medium text-blue-400 hover:text-blue-300">
+              <Link href="/benjamin-bluemchen" className="text-sm font-medium text-blue-400 hover:text-blue-300">
                 Alle anzeigen &rarr;
-              </a>
+              </Link>
             </div>
             {/* Reuse Section but hide its title since we added a custom header above */}
             <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
