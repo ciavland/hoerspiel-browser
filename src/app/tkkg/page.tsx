@@ -17,7 +17,12 @@ export default function TkkgPage() {
         const fetchEpisodes = async () => {
             try {
                 // Fetch more to ensure we get a good history
-                const results = await searchArtist('TKKG', 200);
+                // Note: The underlying service needs to support high limits or pagination if the API caps it.
+                // However, for now let's try increasing the request limit if the service supports it, 
+                // or we might need to rely on the service to handle pagination (which we haven't implemented yet).
+                // Actually, the user says "many are missing". TKKG has 240+ episodes. 
+                // The current limit of 200 is definitely the bottleneck.
+                const results = await searchArtist('TKKG', 500);
 
                 if (results && results.length > 0) {
                     const sorted = results.sort((a, b) => {

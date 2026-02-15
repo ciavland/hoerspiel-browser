@@ -13,24 +13,45 @@ export interface ItunesCollection {
 }
 
 export const searchAudioPlays = async (term: string, limit = 20) => {
-    const params = new URLSearchParams({
-        term,
-        country: 'DE',
-        media: 'music',
-        entity: 'album',
-        limit: limit.toString()
-    });
+    let allResults: ItunesCollection[] = [];
+    let offset = 0;
+    const fetchLimit = 200; // Max per request
 
     try {
-        const response = await fetch(`https://itunes.apple.com/search?${params.toString()}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch from iTunes API');
+        while (allResults.length < limit) {
+            const currentLimit = Math.min(fetchLimit, limit - allResults.length);
+            const params = new URLSearchParams({
+                term,
+                country: 'DE',
+                media: 'music',
+                entity: 'album',
+                limit: currentLimit.toString(),
+                offset: offset.toString()
+            });
+
+            const response = await fetch(`https://itunes.apple.com/search?${params.toString()}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch from iTunes API');
+            }
+            const data = await response.json();
+            const results = data.results as ItunesCollection[];
+
+            if (!results || results.length === 0) {
+                break;
+            }
+
+            allResults = [...allResults, ...results];
+            offset += results.length;
+
+            // If we got fewer results than requested, we've reached the end
+            if (results.length < currentLimit) {
+                break;
+            }
         }
-        const data = await response.json();
-        return data.results as ItunesCollection[];
+        return allResults;
     } catch (error) {
         console.error('iTunes API Error:', error);
-        return [];
+        return allResults; // Return what we have so far
     }
 };
 
