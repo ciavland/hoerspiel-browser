@@ -16,25 +16,32 @@ export default function TkkgPage() {
     useEffect(() => {
         const fetchEpisodes = async () => {
             try {
-                // Fetch more to ensure we get a good history
-                // Note: The underlying service needs to support high limits or pagination if the API caps it.
-                // However, for now let's try increasing the request limit if the service supports it, 
-                // or we might need to rely on the service to handle pagination (which we haven't implemented yet).
-                // Actually, the user says "many are missing". TKKG has 240+ episodes. 
-                // The current limit of 200 is definitely the bottleneck.
-                const results = await searchArtist('TKKG', 500);
+                // Fetch by specific artists to ensure we get all episodes
+                // "TKKG" matches newer ones, "TKKG Retro-Archiv" matches classics, "TKKG Junior" matches new spinoffs
+                const [tkkg, retro, junior] = await Promise.all([
+                    searchArtist('TKKG', 600),
+                    searchArtist('TKKG Retro-Archiv', 300),
+                    searchArtist('TKKG Junior', 100)
+                ]);
 
-                if (results && results.length > 0) {
-                    const sorted = results.sort((a, b) => {
+                // Combine and deduplicate by collectionId
+                const allResults = [...(tkkg || []), ...(retro || []), ...(junior || [])];
+                const uniqueResults = Array.from(new Map(allResults.map(item => [item.collectionId, item])).values());
+
+                if (uniqueResults.length > 0) {
+                    const sorted = uniqueResults.sort((a, b) => {
                         const getEpisodeNumber = (name: string) => {
                             const match = name.match(/Folge\s+(\d+)/i);
                             return match ? parseInt(match[1], 10) : 999999;
                         };
                         const numA = getEpisodeNumber(a.collectionName);
-                        // Handle unnumbered episodes by putting them at the end or beginning based on needs
-                        // Here we sort numerically ascending sort order for the list
                         const numB = getEpisodeNumber(b.collectionName);
-                        return numA - numB;
+
+                        // If both have numbers, sort by number
+                        if (numA !== 999999 && numB !== 999999) return numA - numB;
+
+                        // Fallback to release date if no number
+                        return new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime();
                     });
                     setEpisodes(sorted);
                     setFilteredEpisodes(sorted);
