@@ -16,12 +16,19 @@ export default function Home() {
     const fetchData = async () => {
       try {
         // Parallel fetching
-        const [tkkgData, benjaminResults] = await Promise.all([
-          searchArtist('TKKG'),
-          searchArtist('Benjamin Blümchen', 100) // Fetch more to find the newest
+        const [tkkgResults, benjaminResults] = await Promise.all([
+          searchArtist('TKKG', 100), // Fetch more to find the newest
+          searchArtist('Benjamin Blümchen', 100)
         ]);
 
-        setTkkg(tkkgData || []);
+        if (tkkgResults) {
+          const sortedTkkg = tkkgResults
+            .sort((a: any, b: any) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+            .slice(0, 20);
+          setTkkg(sortedTkkg);
+        } else {
+          setTkkg([]);
+        }
 
         if (benjaminResults) {
           const sortedBenjamin = benjaminResults
@@ -74,7 +81,19 @@ export default function Home() {
         </div>
       ) : (
         <>
-          <Section title="TKKG" items={tkkg} />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">TKKG</h2>
+              <Link href="/tkkg" className="text-sm font-medium text-blue-400 hover:text-blue-300">
+                Alle anzeigen &rarr;
+              </Link>
+            </div>
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+              {tkkg.map((item) => (
+                <AudioPlayCard key={item.collectionId} album={item} />
+              ))}
+            </div>
+          </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
