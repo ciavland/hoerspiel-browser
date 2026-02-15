@@ -43,8 +43,11 @@ export const searchAudioPlays = async (term: string, limit = 20) => {
             allResults = [...allResults, ...results];
             offset += results.length;
 
-            // If we got fewer results than requested, we've reached the end
-            if (results.length < currentLimit) {
+            // Only break if we get 0 results. 
+            // Warning: some APIs return fewer than limit even if more pages exist (e.g. strict filtering).
+            // However, to prevent infinite loops if the API returns identical data despite offset,
+            // we rely on 'offset' increasing.
+            if (results.length === 0) {
                 break;
             }
         }

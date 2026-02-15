@@ -16,7 +16,7 @@ export default function BenjaminBluemchenPage() {
     useEffect(() => {
         const fetchEpisodes = async () => {
             try {
-                const results = await searchArtist('Benjamin Blümchen', 200);
+                const results = await searchArtist('Benjamin Blümchen', 500);
 
                 if (results && results.length > 0) {
                     const sorted = results.sort((a, b) => {
