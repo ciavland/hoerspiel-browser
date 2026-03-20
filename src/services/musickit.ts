@@ -21,10 +21,15 @@ export const searchAudioPlays = async (term: string, limit = 20) => {
         // We always search the base term (fetches popular specials/newest).
         const termsToSearch = [term];
 
-        // If requesting more than 200, we add specific "Folge 1", "Folge 2", etc.
-        // This ensures every core episode is fetched because "Folge 1" matches 1, 10-19, 100-199.
+        // If requesting more than 200, we use smaller query buckets to prevent any single query from
+        // exceeding the 200 result limit. E.g. "Folge 1" matches 1, 10-19, 100-199 and easily hits 200.
         if (limit > 200) {
             for (let i = 1; i <= 9; i++) {
+                termsToSearch.push(`${term} Folge ${i}`);
+            }
+            // Decades 10 to 25 cover up to Folge 259. 
+            // E.g., "Folge 16" catches 16, 160-169 without hitting the limit, rescuing items like 169.
+            for (let i = 10; i <= 25; i++) {
                 termsToSearch.push(`${term} Folge ${i}`);
             }
         }

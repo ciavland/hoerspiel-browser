@@ -19,15 +19,27 @@ export default function Home() {
       try {
         // Parallel fetching
         const [tkkgResults, benjaminResults, bibiResults, bibiTinaResults] = await Promise.all([
-          searchArtist('TKKG', 100), // Fetch more to find the newest
-          searchArtist('Benjamin Blümchen', 100),
-          searchArtist('Bibi Blocksberg', 100),
-          searchArtist('Bibi und Tina', 100)
+          searchArtist('TKKG', 600), // Fetch all to find the truly newest gapless
+          searchArtist('Benjamin Blümchen', 600),
+          searchArtist('Bibi Blocksberg', 600),
+          searchArtist('Bibi und Tina', 600)
         ]);
+
+        const isClassic = (name: string) => {
+          const hasFolge = /Folge\s+\d+/.test(name);
+          const isSpinOff = /Minis|Gute\s*-?\s*Nacht|Schäfchenwolken|Box/i.test(name);
+          return hasFolge && !isSpinOff;
+        };
+
+        const getEpisodeNum = (name: string) => {
+          const match = name.match(/Folge\s+(\d+)/i);
+          return match ? parseInt(match[1], 10) : 0;
+        };
 
         if (tkkgResults) {
           const sortedTkkg = tkkgResults
-            .sort((a: any, b: any) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+            .filter((item: any) => isClassic(item.collectionName))
+            .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setTkkg(sortedTkkg);
         } else {
@@ -36,7 +48,8 @@ export default function Home() {
 
         if (benjaminResults) {
           const sortedBenjamin = benjaminResults
-            .sort((a: any, b: any) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+            .filter((item: any) => isClassic(item.collectionName))
+            .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setBenjamin(sortedBenjamin);
         } else {
@@ -45,7 +58,8 @@ export default function Home() {
 
         if (bibiResults) {
           const sortedBibi = bibiResults
-            .sort((a: any, b: any) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+            .filter((item: any) => isClassic(item.collectionName))
+            .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setBibi(sortedBibi);
         } else {
@@ -54,7 +68,8 @@ export default function Home() {
 
         if (bibiTinaResults) {
           const sortedBibiTina = bibiTinaResults
-            .sort((a: any, b: any) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+            .filter((item: any) => isClassic(item.collectionName))
+            .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setBibiTina(sortedBibiTina);
         } else {
