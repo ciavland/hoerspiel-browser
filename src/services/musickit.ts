@@ -13,55 +13,53 @@ export interface ItunesCollection {
 }
 
 export const searchAudioPlays = async (term: string, limit = 20) => {
-    let allResults: ItunesCollection[] = [];
-    let offset = 0;
+    const allResults: ItunesCollection[] = [];
     const fetchLimit = 200; // Max per request
 
     try {
-        while (allResults.length < limit) {
-            const currentLimit = Math.min(fetchLimit, limit - allResults.length);
+        // Collect search queries needed to bypass the 200 limit for long series.
+        // We always search the base term (fetches popular specials/newest).
+        const termsToSearch = [term];
+
+        // If requesting more than 200, we add specific "Folge 1", "Folge 2", etc.
+        // This ensures every core episode is fetched because "Folge 1" matches 1, 10-19, 100-199.
+        if (limit > 200) {
+            for (let i = 1; i <= 9; i++) {
+                termsToSearch.push(`${term} Folge ${i}`);
+            }
+        }
+
+        // Execute all queries concurrently
+        const fetchPromises = termsToSearch.map(async (searchQuery) => {
             const params = new URLSearchParams({
-                term,
+                term: searchQuery,
                 country: 'DE',
                 media: 'music',
                 entity: 'album',
-                limit: currentLimit.toString(),
-                offset: offset.toString()
+                // Always ask for max 200 unless user requested fewer
+                limit: Math.min(limit, fetchLimit).toString()
             });
 
-            console.log(`Fetching ${term}: offset=${offset}, limit=${currentLimit}`);
             const response = await fetch(`https://itunes.apple.com/search?${params.toString()}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch from iTunes API');
-            }
+            if (!response.ok) return [];
+
             const data = await response.json();
-            const results = data.results as ItunesCollection[];
+            return (data.results || []) as ItunesCollection[];
+        });
 
-            if (!results || results.length === 0) {
-                break;
-            }
+        const resultsArrays = await Promise.all(fetchPromises);
 
-            // Filter out existing IDs to prevent duplicates
-            const existingIds = new Set(allResults.map(r => r.collectionId));
-            const newResults = results.filter(r => !existingIds.has(r.collectionId));
-
-            if (newResults.length === 0 && results.length > 0) {
-                // We got results but they were all duplicates. Stop to prevent infinite loop.
-                console.log(`Stopped fetching ${term} at offset ${offset} due to duplicate results.`);
-                break;
-            }
-
-            allResults = [...allResults, ...newResults];
-            offset += results.length;
-
-            // Only break if we get 0 results. 
-            // Warning: some APIs return fewer than limit even if more pages exist (e.g. strict filtering).
-            // However, to prevent infinite loops if the API returns identical data despite offset,
-            // we rely on 'offset' increasing.
-            if (results.length === 0) {
-                break;
+        // Flatten and deduplicate by collectionId
+        const seenIds = new Set<number>();
+        for (const results of resultsArrays) {
+            for (const r of results) {
+                if (!seenIds.has(r.collectionId)) {
+                    seenIds.add(r.collectionId);
+                    allResults.push(r);
+                }
             }
         }
+
         return allResults;
     } catch (error) {
         console.error('iTunes API Error:', error);

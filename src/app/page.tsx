@@ -9,6 +9,8 @@ import Link from 'next/link';
 export default function Home() {
   const [tkkg, setTkkg] = useState<any[]>([]);
   const [benjamin, setBenjamin] = useState<any[]>([]);
+  const [bibi, setBibi] = useState<any[]>([]);
+  const [bibiTina, setBibiTina] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -16,9 +18,11 @@ export default function Home() {
     const fetchData = async () => {
       try {
         // Parallel fetching
-        const [tkkgResults, benjaminResults] = await Promise.all([
+        const [tkkgResults, benjaminResults, bibiResults, bibiTinaResults] = await Promise.all([
           searchArtist('TKKG', 100), // Fetch more to find the newest
-          searchArtist('Benjamin Blümchen', 100)
+          searchArtist('Benjamin Blümchen', 100),
+          searchArtist('Bibi Blocksberg', 100),
+          searchArtist('Bibi und Tina', 100)
         ]);
 
         if (tkkgResults) {
@@ -37,6 +41,24 @@ export default function Home() {
           setBenjamin(sortedBenjamin);
         } else {
           setBenjamin([]);
+        }
+
+        if (bibiResults) {
+          const sortedBibi = bibiResults
+            .sort((a: any, b: any) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+            .slice(0, 20);
+          setBibi(sortedBibi);
+        } else {
+          setBibi([]);
+        }
+
+        if (bibiTinaResults) {
+          const sortedBibiTina = bibiTinaResults
+            .sort((a: any, b: any) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+            .slice(0, 20);
+          setBibiTina(sortedBibiTina);
+        } else {
+          setBibiTina([]);
         }
       } catch (err: any) {
         console.error(err);
@@ -105,6 +127,34 @@ export default function Home() {
             {/* Reuse Section but hide its title since we added a custom header above */}
             <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
               {benjamin.map((item) => (
+                <AudioPlayCard key={item.collectionId} album={item} />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Bibi Blocksberg</h2>
+              <Link href="/bibi-blocksberg" className="text-sm font-medium text-blue-400 hover:text-blue-300">
+                Alle anzeigen &rarr;
+              </Link>
+            </div>
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+              {bibi.map((item) => (
+                <AudioPlayCard key={item.collectionId} album={item} />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Bibi & Tina</h2>
+              <Link href="/bibi-tina" className="text-sm font-medium text-blue-400 hover:text-blue-300">
+                Alle anzeigen &rarr;
+              </Link>
+            </div>
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+              {bibiTina.map((item) => (
                 <AudioPlayCard key={item.collectionId} album={item} />
               ))}
             </div>

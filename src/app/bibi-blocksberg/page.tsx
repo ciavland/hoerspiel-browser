@@ -6,7 +6,7 @@ import AudioPlayCard from '../../components/AudioPlayCard';
 import Link from 'next/link';
 import { ArrowLeft, Grid, List as ListIcon, Filter, ExternalLink } from 'lucide-react';
 
-export default function BenjaminBluemchenPage() {
+export default function BibiBlocksbergPage() {
     const [episodes, setEpisodes] = useState<ItunesCollection[]>([]);
     const [filteredEpisodes, setFilteredEpisodes] = useState<ItunesCollection[]>([]);
     const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ export default function BenjaminBluemchenPage() {
         const fetchEpisodes = async () => {
             try {
                 // Fetch a large number to ensure we cover everything, including re-releases
-                const results = await searchArtist('Benjamin Blümchen', 600);
+                const results = await searchArtist('Bibi Blocksberg', 600);
 
                 if (results && results.length > 0) {
                     // 1. Deduplicate by Collection ID first (basic safety)
@@ -164,7 +164,7 @@ export default function BenjaminBluemchenPage() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <h1 className="text-4xl font-bold tracking-tight text-white">
-                            Benjamin Blümchen
+                            Bibi Blocksberg
                         </h1>
                         <p className="text-gray-400 mt-2">
                             {filteredEpisodes.length} Folgen gefunden

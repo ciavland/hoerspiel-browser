@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Hörspiel Browser',
-  description: 'Browse German audio plays like TKKG and Benjamin Blümchen',
+  description: 'Browse German audio plays like TKKG, Benjamin Blümchen, Bibi Blocksberg and Bibi & Tina',
 };
 
 export default function RootLayout({
