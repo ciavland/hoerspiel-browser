@@ -34,25 +34,34 @@ export const searchAudioPlays = async (term: string, limit = 20) => {
             }
         }
 
-        // Execute all queries concurrently
-        const fetchPromises = termsToSearch.map(async (searchQuery) => {
+        // Batch execution of queries to prevent overwhelming iOS Safari concurrent connection limits
+        const fetchSearch = async (searchQuery: string) => {
             const params = new URLSearchParams({
                 term: searchQuery,
                 country: 'DE',
                 media: 'music',
                 entity: 'album',
-                // Always ask for max 200 unless user requested fewer
                 limit: Math.min(limit, fetchLimit).toString()
             });
 
-            const response = await fetch(`https://itunes.apple.com/search?${params.toString()}`);
-            if (!response.ok) return [];
+            try {
+                const response = await fetch(`https://itunes.apple.com/search?${params.toString()}`);
+                if (!response.ok) return [];
+                const data = await response.json();
+                return (data.results || []) as ItunesCollection[];
+            } catch (err) {
+                console.error(`Failed to fetch ${searchQuery}:`, err);
+                return [];
+            }
+        };
 
-            const data = await response.json();
-            return (data.results || []) as ItunesCollection[];
-        });
-
-        const resultsArrays = await Promise.all(fetchPromises);
+        const resultsArrays: ItunesCollection[][] = [];
+        const chunkSize = 4; // Max 4 concurrent requests per artist call
+        for (let i = 0; i < termsToSearch.length; i += chunkSize) {
+            const chunk = termsToSearch.slice(i, i + chunkSize);
+            const chunkResults = await Promise.all(chunk.map(fetchSearch));
+            resultsArrays.push(...chunkResults);
+        }
 
         // Flatten and deduplicate by collectionId
         const seenIds = new Set<number>();
