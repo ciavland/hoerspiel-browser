@@ -18,12 +18,22 @@ export default function Home() {
     const fetchData = async () => {
       try {
         // Parallel fetching
-        const [tkkgResults, benjaminResults, bibiResults, bibiTinaResults] = await Promise.all([
-          searchArtist('TKKG', 200), // Smart minimal fetch 
+        const [tkkgResults, tkkgRetroResults, benjaminResults, bibiResults, bibiTinaResults] = await Promise.all([
+          searchArtist('TKKG', 200),
+          searchArtist('TKKG Retro-Archiv', 200),
           searchArtist('Benjamin Blümchen', 200),
           searchArtist('Bibi Blocksberg', 200),
           searchArtist('Bibi und Tina', 200)
         ]);
+
+        // Merge and deduplicate TKKG results
+        const allTkkg = [...(tkkgResults || []), ...(tkkgRetroResults || [])];
+        const tkkgMerged = Array.from(new Map(allTkkg.map(item => [item.collectionId, item])).values());
+
+        const isClassicTkkg = (name: string) => {
+          // TKKG uses "TKKG 183 - Title" or "Folge 183" format
+          return /(?:TKKG|Folge)\s+\d+/.test(name);
+        };
 
         const isClassic = (name: string) => {
           const hasFolge = /Folge\s+\d+/.test(name);
@@ -32,13 +42,18 @@ export default function Home() {
         };
 
         const getEpisodeNum = (name: string) => {
-          const match = name.match(/Folge\s+(\d+)/i);
-          return match ? parseInt(match[1], 10) : 0;
+          // Handle "TKKG 183 - ..." format first
+          const matchTkkg = name.match(/TKKG\s+(\d+)/i);
+          if (matchTkkg) return parseInt(matchTkkg[1], 10);
+          // Standard "Folge 183"
+          const matchFolge = name.match(/Folge\s+(\d+)/i);
+          if (matchFolge) return parseInt(matchFolge[1], 10);
+          return 0;
         };
 
-        if (tkkgResults) {
-          const sortedTkkg = tkkgResults
-            .filter((item: any) => isClassic(item.collectionName))
+        if (tkkgMerged) {
+          const sortedTkkg = tkkgMerged
+            .filter((item: any) => isClassicTkkg(item.collectionName))
             .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setTkkg(sortedTkkg);

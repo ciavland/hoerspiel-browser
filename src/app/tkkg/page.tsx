@@ -16,13 +16,11 @@ export default function TkkgPage() {
     useEffect(() => {
         const fetchEpisodes = async () => {
             try {
-                // Fetch by specific artists to ensure we get all episodes
-                // "TKKG" matches newer ones, "TKKG Retro-Archiv" matches classics, "TKKG Junior" matches new spinoffs
-                const [tkkg, retro, junior] = await Promise.all([
-                    searchArtist('TKKG', 600),
-                    searchArtist('TKKG Retro-Archiv', 300),
-                    searchArtist('TKKG Junior', 100)
-                ]);
+                // Sequential fetching to respect Apple API rate limits.
+                // Each call uses the global concurrency limiter in musickit.ts.
+                const tkkg = await searchArtist('TKKG', 600);
+                const retro = await searchArtist('TKKG Retro-Archiv', 600);
+                const junior = await searchArtist('TKKG Junior', 200);
 
                 // Combine and deduplicate by collectionId
                 const allResults = [...(tkkg || []), ...(retro || []), ...(junior || [])];
