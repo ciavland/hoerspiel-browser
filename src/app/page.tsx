@@ -19,10 +19,10 @@ export default function Home() {
       try {
         // Parallel fetching
         const [tkkgResults, benjaminResults, bibiResults, bibiTinaResults] = await Promise.all([
-          searchArtist('TKKG', 600), // Fetch all to find the truly newest gapless
-          searchArtist('Benjamin Blümchen', 600),
-          searchArtist('Bibi Blocksberg', 600),
-          searchArtist('Bibi und Tina', 600)
+          searchArtist('TKKG', 200), // Smart minimal fetch 
+          searchArtist('Benjamin Blümchen', 200),
+          searchArtist('Bibi Blocksberg', 200),
+          searchArtist('Bibi und Tina', 200)
         ]);
 
         const isClassic = (name: string) => {
