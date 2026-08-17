@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import Section from '../../components/Section';
-import { searchAudioPlays } from '../../services/musickit';
+import { searchAudioPlays, ItunesCollection } from '../../services/musickit';
 import { Search } from 'lucide-react';
 
 export default function SearchPage() {
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<ItunesCollection[]>([]);
     const [loading, setLoading] = useState(false);
     const [searched, setSearched] = useState(false);
 

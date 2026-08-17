@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Script from 'next/script';
-import Player from '../components/Player';
 import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -19,9 +17,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <head>
-        <Script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js" strategy="beforeInteractive" />
-      </head>
       <body className={inter.className} suppressHydrationWarning>
         <div className="min-h-screen bg-gray-900 text-white">
           <nav className="border-b border-gray-800 bg-gray-900/95 p-4 backdrop-blur-md sticky top-0 z-40">
@@ -38,7 +33,6 @@ export default function RootLayout({
           <main className="mx-auto max-w-screen-xl p-4 md:p-8 pb-32">
             {children}
           </main>
-          {/* <Player /> - Disabled for public API version */}
         </div>
       </body>
     </html>

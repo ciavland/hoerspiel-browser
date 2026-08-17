@@ -1,16 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Section from '../components/Section';
 import AudioPlayCard from '../components/AudioPlayCard';
-import { searchArtist } from '../services/musickit';
+import { searchArtist, ItunesCollection } from '../services/musickit';
 import Link from 'next/link';
 
 export default function Home() {
-  const [tkkg, setTkkg] = useState<any[]>([]);
-  const [benjamin, setBenjamin] = useState<any[]>([]);
-  const [bibi, setBibi] = useState<any[]>([]);
-  const [bibiTina, setBibiTina] = useState<any[]>([]);
+  const [tkkg, setTkkg] = useState<ItunesCollection[]>([]);
+  const [benjamin, setBenjamin] = useState<ItunesCollection[]>([]);
+  const [bibi, setBibi] = useState<ItunesCollection[]>([]);
+  const [bibiTina, setBibiTina] = useState<ItunesCollection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -53,8 +52,8 @@ export default function Home() {
 
         if (tkkgMerged) {
           const sortedTkkg = tkkgMerged
-            .filter((item: any) => isClassicTkkg(item.collectionName))
-            .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
+            .filter((item) => isClassicTkkg(item.collectionName))
+            .sort((a, b) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setTkkg(sortedTkkg);
         } else {
@@ -63,8 +62,8 @@ export default function Home() {
 
         if (benjaminResults) {
           const sortedBenjamin = benjaminResults
-            .filter((item: any) => isClassic(item.collectionName))
-            .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
+            .filter((item) => isClassic(item.collectionName))
+            .sort((a, b) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setBenjamin(sortedBenjamin);
         } else {
@@ -73,8 +72,8 @@ export default function Home() {
 
         if (bibiResults) {
           const sortedBibi = bibiResults
-            .filter((item: any) => isClassic(item.collectionName))
-            .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
+            .filter((item) => isClassic(item.collectionName))
+            .sort((a, b) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setBibi(sortedBibi);
         } else {
@@ -83,14 +82,14 @@ export default function Home() {
 
         if (bibiTinaResults) {
           const sortedBibiTina = bibiTinaResults
-            .filter((item: any) => isClassic(item.collectionName))
-            .sort((a: any, b: any) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
+            .filter((item) => isClassic(item.collectionName))
+            .sort((a, b) => getEpisodeNum(b.collectionName) - getEpisodeNum(a.collectionName))
             .slice(0, 20);
           setBibiTina(sortedBibiTina);
         } else {
           setBibiTina([]);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
       } finally {
