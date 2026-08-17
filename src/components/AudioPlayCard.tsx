@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Music } from 'lucide-react';
 import { ItunesCollection } from '../services/musickit';
 
 interface AudioPlayCardProps {
@@ -19,12 +19,18 @@ export default function AudioPlayCard({ album }: AudioPlayCardProps) {
                 className="block"
             >
                 <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-800 shadow-lg">
-                    <Image
-                        src={artworkUrl || '/placeholder.png'}
-                        alt={album.collectionName || 'Album Cover'}
-                        fill
-                        className="object-cover"
-                    />
+                    {artworkUrl ? (
+                        <Image
+                            src={artworkUrl}
+                            alt={album.collectionName || 'Album Cover'}
+                            fill
+                            className="object-cover"
+                        />
+                    ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gray-800 text-gray-600">
+                            <Music className="h-10 w-10" />
+                        </div>
+                    )}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-gray-200">
                             <ExternalLink className="h-6 w-6" />
