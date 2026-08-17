@@ -112,8 +112,3 @@ export const searchAudioPlays = async (term: string, limit = 20) => {
 export const searchArtist = async (artistName: string, limit = 20) => {
     return searchAudioPlays(artistName, limit);
 };
-
-export const initializeMusicKit = async () => {
-    // no-op, kept for component compatibility if mistakenly called
-    return null;
-};

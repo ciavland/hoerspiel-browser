@@ -23,6 +23,7 @@ export default function AudioPlayCard({ album }: AudioPlayCardProps) {
                         src={artworkUrl || '/placeholder.png'}
                         alt={album.collectionName || 'Album Cover'}
                         fill
+                        sizes="160px"
                         className="object-cover"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
